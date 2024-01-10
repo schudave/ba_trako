@@ -1,0 +1,51 @@
+import streamlit as st 
+import pandas as pd
+import numpy as np
+import math
+import random
+
+
+
+st.set_page_config(page_title="Stützen-Stütze", layout="centered")
+
+with st.container():
+    st.subheader("Das TRAKO Tool zur Vordimensionierung von Stützenquerschnitten")
+    st.title("Stützen-Stütze")
+    st.write("##")
+    st.write("Dieses Tool ist von und für Architekturstudierende, die schnell und einfach plausible Stützenquerschnitte für ihre Entwürfe benötigen.")
+    st.write("Jegliche Berechnungen dienen der Vordimensionierung und sind keine vollständige Überprüfung der Statik ihres Entwurfs.")
+    st.write("Dieses Tool dient nur der Berechnung von Stützen von einfachen Hallentragwerken. Hierbei stehen die Stützenreihen links und rechts der Halle und werden von einem Einfeldträger überspannt. ")  
+
+with st.container():
+    st.write("---")
+    st.write("##")
+    laenge = st.number_input("Gib die Höhe der zu berechnenden Stütze in Meter ein:")
+    stuetzenabstand = st.number_input("Gib den Abstand der Stützen ein:")
+    traegerlaenge = st.number_input("Gib die Länge der Einfeldträger ein:")
+    EF = st.selectbox("Wähle den Eulerfall der Stütze aus", ["1","2","3","4"])
+    FL = st.number_input("Gebe die auf die Dachfläche wirkende Flächenlast in kN/m^2 ein:")
+
+with st.container():
+    lef = int(stuetzenabstand) * int(traegerlaenge)/2 
+    st.write("Die Größe des Lasteinzugsfeldes sind " + str(lef) + " Quadratmeter.")
+
+
+# Hier der Auswahl von Eulerfällen ein Wert zuteilen um damit dann damit sk berechnet werden kann  
+
+
+# Höhe über die Schlankheit vordimensinoieren und Zahl auf die nächshöhere durch zwei teilbare Zahl aufrunden --> h
+    
+# BREITE SCHÄTZEN --> welche py Operation???        
+    
+# A = b * h     
+# min_i = 0,289 * h 
+# Wy (b*h^2)/6 
+# wind = 0,65*0,8 = 0,52*stuetzenabstand = w
+# lambda = sk/min_i --> auf nächsthöheren durch 5 teilbaren Wert runden --> Tabelle, Datenbank, --> Wert für k
+# Nd
+# Md
+# wenn (Md/Wy)/sigma_m + (Nd/A*k)/sigma_cII <=1 dann passen b und h
+# iterativ wiederholen, bis das Ergebnis so nah wie möglich an 1 ist
+
+
+# "Der Querschnitt der Stütze ist b= , h= "                                      
