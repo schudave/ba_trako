@@ -7,9 +7,6 @@ import random
 st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
 initial_sidebar_state="expanded"
 
-
-
-
 # Einleitung
 
 with st.container():
