@@ -4,9 +4,6 @@ import numpy as np
 import math
 import random
 
-st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
-initial_sidebar_state="expanded"
-
 st.write(
     """
     <script>
@@ -22,7 +19,8 @@ st.write(
     unsafe_allow_html=True
 )
 
-
+st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
+initial_sidebar_state="expanded"
 
 
 
