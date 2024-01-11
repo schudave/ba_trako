@@ -4,21 +4,6 @@ import numpy as np
 import math
 import random
 
-st.write(
-    """
-    <script>
-        // Funktion, um zur oberen Position der Seite zu scrollen
-        function scrollToTop() {
-            window.scrollTo(0, 0);
-        }
-
-        // Warte, bis die Seite vollständig geladen ist, und rufe dann die Funktion auf
-        window.onload = scrollToTop;
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
 st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
 initial_sidebar_state="expanded"
 
