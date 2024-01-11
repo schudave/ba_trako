@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import math
 import random
-import matplotlib.pyplot as plt
+
 
 st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
 initial_sidebar_state="expanded"
@@ -49,32 +49,6 @@ with st.container():
 
 
 st.write("---")
-
-def zeichne_stuetze():
-    # Erstelle eine einfache Linienzeichnung der Stütze
-    fig, ax = plt.subplots()
-    
-    # Linienzeichnung für die Stütze
-    ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
-    ax.plot([-0.1, 0.1], [1, 1], 'k-', linewidth=2)  # Horizontale Linie oben
-    ax.plot([-0.1, 0.1], [0, 0], 'k-', linewidth=2)  # Horizontale Linie unten
-
-    # Anpassung der Achsen und Begrenzungen
-    ax.axis('equal')
-    ax.set_xlim([-0.2, 0.2])
-    ax.set_ylim([0, 1.2])
-
-    # Ausblenden der Achsenbeschriftungen
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    return fig
-
-# Streamlit-App
-st.title("Stützenzeichnung")
-
-# Zeichne die Stütze und zeige sie in der Streamlit-App an
-st.pyplot(zeichne_stuetze())
 
 
 expander = st.expander("zusätliche Informationen zu deiner Stütze:")
