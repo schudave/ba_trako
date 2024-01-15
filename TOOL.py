@@ -3,18 +3,17 @@ import pandas as pd
 import numpy as np
 import math
 import random
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
 initial_sidebar_state="expanded"
+
 
 # Einleitung
 
 with st.container():
     st.title("Stützen-Stütze")
     st.subheader("Das TRAKO Tool zur Vordimensionierung von Stützenquerschnitten")
-    st.write("##")
-    st.write("Dieses Tool ist von und für Architekturstudierende, die schnell und einfach plausible Stützenquerschnitte für ihre Entwürfe benötigen.")
-    st.write("Dieses Tool dient nur der Berechnung von Stützen von einfachen Hallentragwerken. Hierbei stehen die Stützenreihen links und rechts der Halle und werden von einem Einfeldträger überspannt.")
  
 
 
@@ -24,7 +23,7 @@ with st.container():
 
 with st.container():
     st.write("---")
-    st.subheader("Gib die Hardfacts deiner Stütze an:")
+    st.subheader("Gib die Randbedingungen deiner Stütze an:")
     wert_zu_EF = {
     "1":2,
     "2":1,
@@ -33,7 +32,7 @@ with st.container():
     }
     spalten=st.columns(2)
     with spalten[0]:
-        F = st.number_input("Gebe die auf die Stütze wirkende Normalkraft in kN ein:")
+        F = st.number_input("Gebe die auf die Stütze wirkende Kraft F in kN ein:")
         laenge = st.number_input("Gib die Höhe der zu berechnenden Stütze in Meter ein:")
         stuetzenabstand = st.number_input("Gib den Abstand der Stützen ein:")
     with spalten[1]:
@@ -48,12 +47,6 @@ with st.container():
 
 st.write("---")
 
-
-
-
-
-
-
 #    Materialauswahl
 
 
@@ -64,7 +57,7 @@ with st.container():
         material_auswahl = st.selectbox("Wähle das Material deiner Stütze:", (["Holz", "Stahl"]))
     with spalten[1]:
         if material_auswahl == "Holz":
-            optionen = ["KVH","BSH"]
+            optionen = ["KVH C24","BSH GL24"]
         else:
             optionen = ["HEB", "IPE", "Quadratrohr"]
         wahl_profil = st.selectbox("Wähle ein Profil", optionen)
@@ -91,7 +84,7 @@ if button_gedrueckt:
     spalten=st.columns(2)
     with spalten[1]:
         if material_auswahl == "Holz":
-            st.write("- Die über die Schlankheit vordimensionierte Höhe beträgt " + str(h_vor) + " cm")
+            st.write("- Die über die Schlankheit vordimensionierte Höhe beträgt " + str(h_vor) + " m")
             st.write("- Deine Stütze aus KVH/BSH hat eine Höhe von ... cm und eine Breite von ...")
             st.write("- Der Ausnutzungsgrad deiner Stütze beträgt ... % ")
         else:   
@@ -118,10 +111,63 @@ with st.container():
 
 
 
-# Hier der Auswahl von Eulerfällen ein Wert zuteilen um damit dann damit sk berechnet werden kann  
+def zeichne_stuetze(eulerfall, normalkraft=0):
+    # Erstelle eine Linienzeichnung der Stütze
+    fig, ax = plt.subplots()
+
+    # Abhängig vom gewählten Eulerfall die Stütze zeichnen
+    if eulerfall == "Eulerfall 1":
+        # Eulerfall 1: Obere Stütze ist fest eingespannt
+        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
+        ax.plot([-0.05, 0.05], [1, 1], 'k-', linewidth=2)  # Horizontale Linie oben (Festlager)
+    elif eulerfall == "Eulerfall 2":
+        # Eulerfall 2: Untere Stütze ist fest eingespannt
+        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
+        ax.plot([-0.05, 0.05], [0, 0], 'k-', linewidth=2)  # Horizontale Linie unten (Festlager)
+    elif eulerfall == "Eulerfall 3":
+        # Eulerfall 3: Beide Stützen sind gelenkig gelagert
+        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
+        ax.plot([-0.05, 0.05], [1, 1], 'k--', linewidth=2)  # Horizontale gestrichelte Linie oben (Loslager)
+        ax.plot([-0.05, 0.05], [0, 0], 'k--', linewidth=2)  # Horizontale gestrichelte Linie unten (Loslager)
+    elif eulerfall == "Eulerfall 4":
+        # Eulerfall 4: Obere Stütze ist gelenkig, untere Stütze ist fest eingespannt
+        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
+        ax.plot([-0.05, 0.05], [1, 1], 'k--', linewidth=2)  # Horizontale gestrichelte Linie oben (Loslager)
+        ax.plot([-0.05, 0.05], [0, 0], 'k-', linewidth=2)  # Horizontale Linie unten (Festlager)
+
+    # Anpassung der Achsen und Begrenzungen
+    ax.axis('equal')
+    ax.set_xlim([-0.2, 0.2])
+    ax.set_ylim([-0.2, 1.7])  # Erweitert den Bereich für den Pfeil
 
 
-# Höhe über die Schlankheit vordimensinoieren und Zahl auf die nächshöhere durch zwei teilbare Zahl aufrunden --> h
+    # Ausblenden der Achsenbeschriftungen
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # Zeichne den vergrößerten Pfeil für die Normalkraft
+    ax.annotate(
+        f'F: {normalkraft} kN',
+        xy=(0, 1), xycoords='data',
+        xytext=(0, 1.3), textcoords='data',
+        arrowprops=dict(arrowstyle="->", connectionstyle="arc3", linewidth=2, shrinkA=0, shrinkB=10),
+        fontsize=12, ha="center", va="center"
+    )
+
+    # Rückgabe der Figur, um sie in Streamlit anzuzeigen
+    return fig
+
+# Streamlit-App
+st.title("Stützenzeichnung mit Eulerfall")
+
+# Benutzereingabe für den Eulerfall
+eulerfall = st.selectbox("Wähle den Eulerfall der Stütze aus", ["Eulerfall 1", "Eulerfall 2", "Eulerfall 3", "Eulerfall 4"])
+
+# Benutzereingabe für die Normalkraft
+normalkraft = st.number_input("Trage die Normalkraft (kN) ein:", min_value=0, value=0)
+
+# Zeichne die Stütze mit dem vergrößerten Pfeil und zeige sie in der Streamlit-App an
+st.pyplot(zeichne_stuetze(eulerfall, normalkraft), use_container_width=True)
     
 # BREITE SCHÄTZEN --> welche py Operation???        
     
