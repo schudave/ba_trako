@@ -4,6 +4,7 @@ import numpy as np
 import math
 import random
 import matplotlib.pyplot as plt
+import csv
 
 st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
 initial_sidebar_state="expanded"
@@ -49,14 +50,15 @@ st.write("---")
 
 # Rechenoperationen
 
-with st.container():
-    wert= wert_zu_EF[EF]
-    sk= wert * laenge
-    h_vor= sk / (0.289 * 100)
+wert= wert_zu_EF[EF]
+sk= wert * laenge
 
+CM_PER_METER = 100
+
+h_vor= sk / (0.289 * 100) * CM_PER_METER
 def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
-    gerundet = round(h_vor, 2)  # Runden auf zwei Nachkommastellen
-    return gerundet if gerundet % 2 == 0 else gerundet + 0.01  # Sicherstellen, dass durch zwei teilbar
+    cut = math.ceil(h_vor)
+    return cut if cut % 2 == 0 else cut + 1
 
 
 
@@ -67,7 +69,6 @@ gerundete_zahl = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
 st.write(f"Ursprüngliche Zahl: {h_vor}")
 st.write(f"Gerundete Zahl (nächstgrößere durch zwei teilbare Zahl): {gerundete_zahl}")
 
-### die gerundete zahl ist nicht immer durch zwei teilbar
 
 ### BREITE Schätzen -----> wie????
 
