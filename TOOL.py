@@ -18,7 +18,7 @@ with st.container():
 
 
 
-#     Hardfacts
+#     Rahmenbedingungen
     
 
 with st.container():
@@ -47,6 +47,43 @@ with st.container():
 
 st.write("---")
 
+# Rechenoperationen
+
+with st.container():
+    wert= wert_zu_EF[EF]
+    sk= wert * laenge
+    h_vor= sk / (0.289 * 100)
+
+def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
+    gerundet = round(h_vor, 2)  # Runden auf zwei Nachkommastellen
+    return gerundet if gerundet % 2 == 0 else gerundet + 0.01  # Sicherstellen, dass durch zwei teilbar
+
+
+
+# Aufrunden auf nächsthöhere durch zwei teilbare Zahl
+gerundete_zahl = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
+
+# Anzeige der Ergebnisse
+st.write(f"Ursprüngliche Zahl: {h_vor}")
+st.write(f"Gerundete Zahl (nächstgrößere durch zwei teilbare Zahl): {gerundete_zahl}")
+
+### die gerundete zahl ist nicht immer durch zwei teilbar
+
+### BREITE Schätzen -----> wie????
+
+# A = hoehe * breite 
+# min_i = 0,289 * hoehe 
+# Wy = (breite * hoehe²)/6 
+# w1 = w * 0.8 
+# w2 = w1 * stuetzenabstand 
+# lamda = sk / min_i ---> auf nächtgrößere durch 5 teilbare Zahl aufrunden --> DATENBANK lamda --> Wert auswählen 
+# Nd = F * 1.4#
+# Md = 1.4 * ((w2*laenge²)/8) 
+
+
+
+
+
 #    Materialauswahl
 
 
@@ -67,12 +104,8 @@ with st.container():
 
 st.write("---")
 
-# Rechenoperationen
 
-with st.container():
-    wert= wert_zu_EF[EF]
-    sk= wert * laenge
-    h_vor= round( sk / (0.289 * 100),2)
+
 
 
 #     Ausgabe des Stützenquerschnitts
