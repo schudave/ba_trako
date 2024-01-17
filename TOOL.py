@@ -54,7 +54,7 @@ if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0 :
 st.write("---")
 
 def get_value_from_csv (lambda_k, holzprofil):
-    with open("/knickbeiwerte.csv") as csv_datei: 
+    with open("knickbeiwerte.csv") as csv_datei: 
         df = pd.read_csv (csv_datei)
         row = df[df["lambda"] == lambda_k]
         value =row.at[row.index[0], holzprofil]
