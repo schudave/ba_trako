@@ -25,7 +25,7 @@ with st.container():
 
 with st.container():
     st.write("---")
-    st.subheader("Gib die Randbedingungen deiner Stütze ein:")
+    st.subheader("Gib die Randbedingungen deiner Stütze ein :")
     wert_zu_EF = {
     "Eulerfall 1":2,
     "Eulerfall 2":1,
@@ -34,20 +34,20 @@ with st.container():
     }
     spalten=st.columns(2)
     with spalten[0]:
-        F = st.number_input("Normalkraft F in kN:")
-        hoehe = st.number_input("Stützenhöhe:")
-        stuetzenabstand = st.number_input("Stützenabstand:")
+        F = st.number_input("Normalkraft F in kN :")
+        hoehe = st.number_input("Stützenhöhe in m :")
+        stuetzenabstand = st.number_input("Stützenabstand in m :")
     with spalten[1]:
         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
-        b= st.number_input("Gebe eine feste Breite deiner Stütze in cm ein:")
-        w= st.number_input("Windlast in kN/m²:")
+        b= st.number_input("Gebe eine feste Breite deiner Stütze in cm ein :")
+        w= st.number_input("Windlast in kN/m² :")
     expander = st.expander("Sieh dir die Eulerfälle und Windzonenkarte an")
     expander.write("Abbildung der vier Eulerfälle ")
     expander.write("Abbildung der Windzonenkarte und zugehöriger Windgeschwindigkeitstabelle")
 
 # prüfen ob der User auch kein Scheiß eingegeben hat .. ! 
 if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0 :
-    st.write("Bitte trage zuerst die Randbedingungen deiner Stütze ein.")
+    st.write("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
     st.write("---")
     sys.exit()
 
@@ -62,16 +62,16 @@ def get_value_from_csv (lambda_k, holzprofil):
 
 
 with st.container():
-    st.subheader("Konfiguriere deine Stütze:")
+    st.subheader("Konfiguriere deine Stütze :")
     spalten=st.columns(2)
     with spalten[0]:
-        material_auswahl = st.selectbox("Wähle das Material:", (["Holz", "Stahl"]))
+        material_auswahl = st.selectbox("Wähle das Material :", (["Holz", "Stahl"]))
     with spalten[1]:
         if material_auswahl == "Holz":
             optionen = ["KVH C24","BSH GL24"]
         else:
             optionen = ["HEB", "IPE", "Quadratrohr"]
-        wahl_profil = st.selectbox("Wähle ein Profil:", optionen)
+        wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
     st.write(f"Du hast {wahl_profil} ausgewählt.")
     button_gedrueckt= st.button("Stützquerschnitt dimensionieren")
 
@@ -158,7 +158,7 @@ st.write(ergebnis)
 
 
 with st.container():
-    st.subheader("Querschnitt deiner Stütze:")
+    st.subheader("Querschnitt deiner Stütze :")
 if button_gedrueckt:
     spalten=st.columns(2)
     with spalten[1]:
