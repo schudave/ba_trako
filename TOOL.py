@@ -241,6 +241,6 @@ st.title("Stützenzeichnung mit Eulerfall")
 normalkraft = F
 
 # Zeichne die Stütze mit dem vergrößerten Pfeil und zeige sie in der Streamlit-App an
-st.pyplot(zeichne_stuetze(EF, normalkraft), use_container_width=True)
+st.pyplot(zeichne_stuetze(EF, normalkraft))
 
 
