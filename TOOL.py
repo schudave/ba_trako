@@ -115,10 +115,13 @@ k = get_value_from_csv(lambda_k, wahl_profil)
 
 ergebnis= (Nd/(A*k))/1.5 + ((Md*100)/Wy)/1.5
 
+st.write(sk, min_i)
 st.write(lambda_k)
+st.write(k)
+st.write("---")
 st.write(w_fin)
 st.write(M)
-
+st.write("---")
 st.write(Nd)
 st.write(A)
 st.write(k)
