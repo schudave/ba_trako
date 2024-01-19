@@ -8,7 +8,7 @@ import csv
 import sys
 import os
 
-st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=("🚩"))
+st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=(":triangular_flag_on_post:"))
 initial_sidebar_state="expanded"
 
 
@@ -54,7 +54,7 @@ if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0 :
 st.write("---")
 
 def get_value_from_csv (lambda_k, holzprofil):
-    with open("knickbeiwerte.csv") as csv_datei: 
+    with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\ba_trako\\knickbeiwerte.csv") as csv_datei: 
         df = pd.read_csv (csv_datei)
         row = df[df["lambda"] == lambda_k]
         value =row.at[row.index[0], holzprofil]
@@ -88,6 +88,7 @@ sk= wert * hoehe
 CM_PER_METER = 100
 
 h_vor= sk / (0.289 * 100) * CM_PER_METER
+
 def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
     cut = math.ceil(h_vor)
     return cut if cut % 2 == 0 else cut + 1
@@ -99,9 +100,61 @@ h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
 st.write(f"Ursprüngliche Zahl: {h_vor}")
 st.write(f"Gerundete Zahl (nächstgrößere durch zwei teilbare Zahl): {h}")
 
-b = 12  
+b = h - 4 
 
-# Querschnittfläche A berechnen 
+
+def ergebnis_berechnen(b, h):
+    A = b * h 
+    Wy = (b * (h**2))/6 
+    min_i = 0.289 * h
+    w_fin = (w * 0.8)*stuetzenabstand
+    M= (w_fin*(hoehe**2))/8 
+    Md= M * 1.4
+    Nd= F * 1.4
+    lambda_k= sk*100/ min_i 
+    lambda_k=lambda_k if lambda_k % 5 == 0 else lambda_k + (5-lambda_k % 5)
+    k = get_value_from_csv(lambda_k, wahl_profil) 
+    ergebnis= (Nd/(A*k))/1.5 + ((Md*100)/Wy)/1.5
+    return b, h
+
+# Funktion zum Überprüfen, ob eine Zahl gerade ist
+def ist_gerade(zahl):
+    return zahl % 2 == 0
+
+def finde_optimale_werte(b, h):
+    aktuelles_b = b
+    aktuelles_h = h
+
+    while True:
+        # Berechne das aktuelle Ergebnis
+        aktuelles_ergebnis = ergebnis_berechnen(aktuelles_b, aktuelles_h)
+
+        # Überprüfe, ob b und h Vielfache von 2 sind und das Ergebnis kleiner gleich 1 ist
+        if ist_gerade(aktuelles_b) and ist_gerade(aktuelles_h) and aktuelles_ergebnis <= 1:
+            return aktuelles_b, aktuelles_h, aktuelles_ergebnis
+
+        # Passe b und h an (Beispiel: erhöhe beide um 2)
+        aktuelles_b += 2
+        aktuelles_h += 2
+
+# Beispielaufruf
+start_b = 1
+start_h = 1
+optimales_b, optimales_h, bestes_ergebnis = finde_optimale_werte(start_b, start_h)
+
+st.write(f"Optimales b: {optimales_b}")
+st.write(f"Optimales h: {optimales_h}")
+st.write(f"Bestes Ergebnis: {bestes_ergebnis}")
+
+
+
+
+
+
+
+
+
+ 
 A = b * h 
 Wy = (b * (h**2))/6 
 min_i = 0.289 * h
@@ -128,27 +181,6 @@ st.write(k)
 st.write(Md)
 st.write(Wy)
 st.write(ergebnis)
-
-
-### BREITE Schätzen -----> wie????
-
-# A = hoehe * breite 
-# min_i = 0,289 * hoehe 
-# Wy = (breite * hoehe²)/6 
-# w1 = w * 0.8 
-# w2 = w1 * stuetzenabstand 
-# lamda = sk / min_i ---> auf nächtgrößere durch 5 teilbare Zahl aufrunden --> DATENBANK lamda --> Wert auswählen 
-# Nd = F * 1.4#
-# Md = 1.4 * ((w2*laenge²)/8) 
-
-
-
-
-
-#    Materialauswahl
-
-
-
 
 
 
