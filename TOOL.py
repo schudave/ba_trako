@@ -1,150 +1,152 @@
-import streamlit as st 
+import streamlit as st
 import pandas as pd
 import numpy as np
 import math
 import random
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import csv
 import sys
 import os
 
-st.set_page_config(page_title="Stützen-Stütze", layout="centered", page_icon=(":triangular_flag_on_post:"))
-initial_sidebar_state="expanded"
+# KONSTANTEN
+FIGURE_WIDTH = 10
+FIGURE_HEIGHT = 10
 
+
+
+st.set_page_config(
+    page_title="Stützen-Stütze",
+    layout="wide",
+    page_icon=(":triangular_flag_on_post:"),
+)
 
 # Einleitung
 
 with st.container():
     st.title("Stützen-Stütze")
     st.subheader("Das TRAKO Tool zur Vordimensionierung von Stützenquerschnitten")
- 
 
 
 #     Rahmenbedingungen
-    
+
 
 with st.container():
     st.write("---")
     st.subheader("Gib die Randbedingungen deiner Stütze ein :")
     wert_zu_EF = {
-    "Eulerfall 1":2,
-    "Eulerfall 2":1,
-    "Eulerfall 3":0.7,
-    "Eulerfall 4":0.5
+        "Eulerfall 1": 2,
+        "Eulerfall 2": 1,
+        "Eulerfall 3": 0.7,
+        "Eulerfall 4": 0.5,
     }
-    spalten=st.columns(2)
+    spalten = st.columns(5)
     with spalten[0]:
         F = st.number_input("Normalkraft F in kN :")
-        hoehe = st.number_input("Stützenhöhe in m :")
-        stuetzenabstand = st.number_input("Stützenabstand in m :")
     with spalten[1]:
+        hoehe = st.number_input("Stützenhöhe in m :")
+    with spalten[2]:
+        stuetzenabstand = st.number_input("Stützenabstand in m :")
+    with spalten[3]:
+        w = st.number_input("Windlast in kN/m² :")
+    with spalten[4]:
         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
-        b= st.number_input("Gebe eine feste Breite deiner Stütze in cm ein :")
-        w= st.number_input("Windlast in kN/m² :")
-    expander = st.expander("Sieh dir die Eulerfälle und Windzonenkarte an")
-    expander.write("Abbildung der vier Eulerfälle ")
-    expander.write("Abbildung der Windzonenkarte und zugehöriger Windgeschwindigkeitstabelle")
+    
 
-# prüfen ob der User auch kein Scheiß eingegeben hat .. ! 
-if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0 :
+# prüfen ob der User auch kein korrekte Werte eingegeben hat
+if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0:
     st.write("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
     st.write("---")
     sys.exit()
 
 st.write("---")
 
-def get_value_from_csv (lambda_k, holzprofil):
-    with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\ba_trako\\knickbeiwerte.csv") as csv_datei: 
-        df = pd.read_csv (csv_datei)
-        row = df[df["lambda"] == lambda_k]
-        value =row.at[row.index[0], holzprofil]
-        return value 
+def get_value_from_csv(lambda_k, holzprofil):
+    try:
+        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\knickbeiwerte.csv") as csv_datei:
+            df = pd.read_csv(csv_datei)
+            row = df[df["lambda"] == lambda_k]
+            value = row.at[row.index[0], holzprofil]
+            return value
+    except:
+        return -1
 
 
-with st.container():
-    st.subheader("Konfiguriere deine Stütze :")
-    spalten=st.columns(2)
-    with spalten[0]:
-        material_auswahl = st.selectbox("Wähle das Material :", (["Holz", "Stahl"]))
-    with spalten[1]:
-        if material_auswahl == "Holz":
-            optionen = ["KVH C24","BSH GL24"]
-        else:
-            optionen = ["HEB", "IPE", "Quadratrohr"]
-        wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
-    st.write(f"Du hast {wahl_profil} ausgewählt.")
-    button_gedrueckt= st.button("Stützquerschnitt dimensionieren")
-
-st.write("---")
-
-
-
-
-# Rechenoperationen
-
-wert= wert_zu_EF[EF]
-sk= wert * hoehe
-
+wert = wert_zu_EF[EF]
+sk = wert * hoehe
 CM_PER_METER = 100
-
-h_vor= sk / (0.289 * 100) * CM_PER_METER
+h_vor = sk / (0.289 * 100) * CM_PER_METER
 
 def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
     cut = math.ceil(h_vor)
     return cut if cut % 2 == 0 else cut + 1
-
-# Aufrunden auf nächsthöhere durch zwei teilbare Zahl
 h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
 
-# Anzeige der Ergebnisse
-st.write(f"Ursprüngliche Zahl: {h_vor}")
-st.write(f"Gerundete Zahl (nächstgrößere durch zwei teilbare Zahl): {h}")
+st.subheader("Konfiguriere deine Stütze :")
+spalten = st.columns(5)
+with spalten[0]:
+    material_auswahl = st.selectbox("Wähle das Material :", (["Holz", "Stahl"]))
+    if material_auswahl == "Holz":
+            optionen = ["KVH C24", "BSH GL24"]
+    else:
+            optionen = ["HEB", "IPE", "Quadratrohr"]
+    wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
 
-b = h - 4 
+with spalten[1]:
+    default_value=h
+    h = st.select_slider(
+    'Gib h an :',
+    options=list(range(2, 101, 2)),  
+    value=default_value 
+    )
+    b = st.select_slider(
+    'Gib b an :',
+    options=list(range(2, 101, 2)),  
+    value=default_value 
+    )
+
+def draw_rectangle(width, height):
+    # Erstelle die Darstellungsoberfläche mit Streamlit
+    fig, ax = plt.subplots()
+    fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    def get_center(length):
+        return 0.5 - length / 2
+
+    rectangle = Rectangle((1,1), 0, 0, edgecolor='black', facecolor='none',)
+    # Berechne die Position des Rechtecks, um es in der Mitte zu platzieren
+    if height <= width:
+        width_fix=0.4
+        seitenverhaeltnis= height/width
+        x_center = get_center(width_fix)
+        y_center = get_center(seitenverhaeltnis*width_fix)
+
+        rectangle.set_xy((x_center,y_center))
+        rectangle.set_width(width_fix)
+        rectangle.set_height(seitenverhaeltnis * width_fix)
+    else:
+        height_fix = 0.4
+        seitenverhaeltnis = width/height
+        x_center = get_center(seitenverhaeltnis*height_fix)
+        y_center = get_center(height_fix)
+
+        rectangle.set_width(seitenverhaeltnis*height_fix)
+        rectangle.set_height(height_fix)
+        rectangle.set_xy((x_center,y_center))
+    
+    ax.set_xticks([])
+    ax.set_yticks([])
+    # Zeichne das Rechteck
+    ax.add_patch(rectangle)
+    # Zeige die Darstellungsoberfläche in Streamlit an
+    st.pyplot(fig)
 
 
-def ergebnis_berechnen(b, h):
-    A = b * h 
-    Wy = (b * (h**2))/6 
-    min_i = 0.289 * h
-    w_fin = (w * 0.8)*stuetzenabstand
-    M= (w_fin*(hoehe**2))/8 
-    Md= M * 1.4
-    Nd= F * 1.4
-    lambda_k= sk*100/ min_i 
-    lambda_k=lambda_k if lambda_k % 5 == 0 else lambda_k + (5-lambda_k % 5)
-    k = get_value_from_csv(lambda_k, wahl_profil) 
-    ergebnis= (Nd/(A*k))/1.5 + ((Md*100)/Wy)/1.5
-    return b, h
 
-# Funktion zum Überprüfen, ob eine Zahl gerade ist
-def ist_gerade(zahl):
-    return zahl % 2 == 0
 
-def finde_optimale_werte(b, h):
-    aktuelles_b = b
-    aktuelles_h = h
-
-    while True:
-        # Berechne das aktuelle Ergebnis
-        aktuelles_ergebnis = ergebnis_berechnen(aktuelles_b, aktuelles_h)
-
-        # Überprüfe, ob b und h Vielfache von 2 sind und das Ergebnis kleiner gleich 1 ist
-        if ist_gerade(aktuelles_b) and ist_gerade(aktuelles_h) and aktuelles_ergebnis <= 1:
-            return aktuelles_b, aktuelles_h, aktuelles_ergebnis
-
-        # Passe b und h an (Beispiel: erhöhe beide um 2)
-        aktuelles_b += 2
-        aktuelles_h += 2
-
-# Beispielaufruf
-start_b = 1
-start_h = 1
-optimales_b, optimales_h, bestes_ergebnis = finde_optimale_werte(start_b, start_h)
-
-st.write(f"Optimales b: {optimales_b}")
-st.write(f"Optimales h: {optimales_h}")
-st.write(f"Bestes Ergebnis: {bestes_ergebnis}")
+# Zeichne das Rechteck mit den angegebenen Höhen- und Breitenwerten
 
 
 
@@ -154,103 +156,69 @@ st.write(f"Bestes Ergebnis: {bestes_ergebnis}")
 
 
 
- 
-A = b * h 
-Wy = (b * (h**2))/6 
+A = b * h
+Wy = (b * (h**2)) / 6
 min_i = 0.289 * h
-w_fin = (w * 0.8)*stuetzenabstand
-M= (w_fin*(hoehe**2))/8 
-Md= M * 1.4
-Nd= F * 1.4
-lambda_k= sk*100/ min_i 
-lambda_k=lambda_k if lambda_k % 5 == 0 else lambda_k + (5-lambda_k % 5)
-k = get_value_from_csv(lambda_k, wahl_profil) 
+w_fin = (w * 0.8) * stuetzenabstand
+M = (w_fin * (hoehe**2)) / 8
+Md = M * 1.4
+Nd = F * 1.4
+lambda_k = sk * 100 / min_i
+lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
+k = get_value_from_csv(lambda_k, wahl_profil)
 
-ergebnis= (Nd/(A*k))/1.5 + ((Md*100)/Wy)/1.5
+if k == -1:
+    st.write("FEHLER! Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine EINGABEN!")
+    sys.exit()
 
-st.write(sk, min_i)
-st.write(lambda_k)
-st.write(k)
-st.write("---")
-st.write(w_fin)
-st.write(M)
-st.write("---")
-st.write(Nd)
-st.write(A)
-st.write(k)
-st.write(Md)
-st.write(Wy)
-st.write(ergebnis)
+ergebnis = (Nd / (A * k)) / 1.5 + ((Md * 100) / Wy) / 1.5
+ausnutzungsgrad_vor= ergebnis * 100
+ausnutzungsgrad = round (ausnutzungsgrad_vor, 2)
 
 
 
-
-
-#     Ausgabe des Stützenquerschnitts
-
-
-with st.container():
-    st.subheader("Querschnitt deiner Stütze :")
-if button_gedrueckt:
-    spalten=st.columns(2)
-    with spalten[1]:
-        if material_auswahl == "Holz":
-            st.write("- Die über die Schlankheit vordimensionierte Höhe beträgt " + str(h) + " cm")
-            st.write("- Deine Stütze aus KVH/BSH hat eine Höhe von ... cm und eine Breite von ...")
-            st.write("- Der Ausnutzungsgrad deiner Stütze beträgt ... % ")
-        else:   
-            st.write("- Deine Stütze aus Stahl wird ein HEB/IPE/Quadratrohr ... zb 140") 
-            st.write("- Der Ausnutzungsgrad deiner Stütze beträgt ... % ")
-    with spalten[0]:
-        st.write("Der Querschnitt deiner Stütze sieht so aus: Abbildung des Stützenquerschnittes")
-
-expander = st.expander("zusätliche Informationen zu deiner Stütze:")
-expander.write("Deine Stütze benötigt ... Kubimeter ... und wiegt somit ... kg")
-st.write("---")
-             
-expander = st.expander("vorherige Ergebnisse anzeigen")
-expander.write("Abbildung der vorherigen Ergebnisse für die Stützenquerschnitte in den gewählten Materialien und Profilen und den dazugehörigen Werten für b, h und den Ausnutzungsgrad")
-
-
-
-
-
-
-with st.container():
-    spalten = st.columns(3)
-    spalten[1].button("Nachweise pdf drucken")
-
-
+with spalten[3]:
+     if ausnutzungsgrad > 100 :
+        st.write("Der gewählte Querschnitt erfüllt den Knicknachweis nicht, bitte ändere die Werte für b und h")
+     else:
+        st.write(f"Der Ausnutzungsgrad ( η ) deiner Stütze beträgt :  \n \n {ausnutzungsgrad} % \n " )
+        st.write(f"Die Schlankheit der Stütze beträgt : \n \n {lambda_k}")
 
 def zeichne_stuetze(EF, normalkraft=0):
-    # Erstelle eine Linienzeichnung der Stütze
+    
     fig, ax = plt.subplots()
-
-    # Abhängig vom gewählten Eulerfall die Stütze zeichnen
+    fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT) 
+    
     if EF == "Eulerfall 1":
-        # Eulerfall 1: Obere Stütze ist fest eingespannt
-        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
-        ax.plot([-0.05, 0.05], [1, 1], 'k-', linewidth=2)  # Horizontale Linie oben (Festlager)
+        ax.plot([0, 0], [0, 1], "k-", linewidth=2)  
+        ax.plot(
+            [-0.05, 0.05], [1, 1], "k-", linewidth=2
+        ) 
     elif EF == "Eulerfall 2":
-        # Eulerfall 2: Untere Stütze ist fest eingespannt
-        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
-        ax.plot([-0.05, 0.05], [0, 0], 'k-', linewidth=2)  # Horizontale Linie unten (Festlager)
+        ax.plot([0, 0], [0, 1], "k-", linewidth=2) 
+        ax.plot(
+            [-0.05, 0.05], [0, 0], "k-", linewidth=2
+        )  # Horizontale Linie unten (Festlager)
     elif EF == "Eulerfall 3":
-        # Eulerfall 3: Beide Stützen sind gelenkig gelagert
-        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
-        ax.plot([-0.05, 0.05], [1, 1], 'k--', linewidth=2)  # Horizontale gestrichelte Linie oben (Loslager)
-        ax.plot([-0.05, 0.05], [0, 0], 'k--', linewidth=2)  # Horizontale gestrichelte Linie unten (Loslager)
+        ax.plot([0, 0], [0, 1], "k-", linewidth=2) 
+        ax.plot(
+            [-0.05, 0.05], [1, 1], "k--", linewidth=2
+        ) 
+        ax.plot(
+            [-0.05, 0.05], [0, 0], "k--", linewidth=2
+        )  
     elif EF == "Eulerfall 4":
-        # Eulerfall 4: Obere Stütze ist gelenkig, untere Stütze ist fest eingespannt
-        ax.plot([0, 0], [0, 1], 'k-', linewidth=2)  # Vertikale Linie
-        ax.plot([-0.05, 0.05], [1, 1], 'k--', linewidth=2)  # Horizontale gestrichelte Linie oben (Loslager)
-        ax.plot([-0.05, 0.05], [0, 0], 'k-', linewidth=2)  # Horizontale Linie unten (Festlager)
+        ax.plot([0, 0], [0, 1], "k-", linewidth=2)  
+        ax.plot(
+            [-0.05, 0.05], [1, 1], "k--", linewidth=2
+        )  
+        ax.plot(
+            [-0.05, 0.05], [0, 0], "k-", linewidth=2
+        )  
 
-    # Anpassung der Achsen und Begrenzungen
-    ax.axis('equal')
+    ax.axis("equal")
     ax.set_xlim([-0.2, 0.2])
-    ax.set_ylim([-0.2, 1.7])  # Erweitert den Bereich für den Pfeil
-
+    ax.set_ylim([-0.2, 1.7])  
 
     # Ausblenden der Achsenbeschriftungen
     ax.set_xticks([])
@@ -258,24 +226,338 @@ def zeichne_stuetze(EF, normalkraft=0):
 
     # Zeichne den vergrößerten Pfeil für die Normalkraft
     ax.annotate(
-        f'F: {normalkraft} kN',
-        xy=(0, 1), xycoords='data',
-        xytext=(0, 1.3), textcoords='data',
-        arrowprops=dict(arrowstyle="->", connectionstyle="arc3", linewidth=2, shrinkA=0, shrinkB=10),
-        fontsize=12, ha="center", va="center"
+        f"F: {normalkraft} kN",
+        xy=(0, 1),
+        xycoords="data",
+        xytext=(0, 1.3),
+        textcoords="data",
+        arrowprops=dict(
+            arrowstyle="->", connectionstyle="arc3", linewidth=2, shrinkA=0, shrinkB=10
+        ),
+        fontsize=12,
+        ha="center",
+        va="center",
     )
 
     # Rückgabe der Figur, um sie in Streamlit anzuzeigen
     return fig
 
-# Streamlit-App
-st.title("Stützenzeichnung mit Eulerfall")
-
-
-# Benutzereingabe für die Normalkraft
 normalkraft = F
 
-# Zeichne die Stütze mit dem vergrößerten Pfeil und zeige sie in der Streamlit-App an
-st.pyplot(zeichne_stuetze(EF, normalkraft))
+with spalten[2]:
+   draw_rectangle(b,h)
+
+with spalten[4]:
+    st.pyplot(zeichne_stuetze(EF, normalkraft))
 
 
+
+
+
+
+
+
+
+
+# # Einleitung
+
+# with st.container():
+#     st.title("Stützen-Stütze")
+#     st.subheader("Das TRAKO Tool zur Vordimensionierung von Stützenquerschnitten")
+
+
+# #     Rahmenbedingungen
+
+
+# with st.container():
+#     st.write("---")
+#     st.subheader("Gib die Randbedingungen deiner Stütze ein :")
+#     wert_zu_EF = {
+#         "Eulerfall 1": 2,
+#         "Eulerfall 2": 1,
+#         "Eulerfall 3": 0.7,
+#         "Eulerfall 4": 0.5,
+#     }
+#     spalten = st.columns(2)
+#     with spalten[0]:
+#         F = st.number_input("Normalkraft F in kN :")
+#         hoehe = st.number_input("Stützenhöhe in m :")
+#         stuetzenabstand = st.number_input("Stützenabstand in m :")
+#     with spalten[1]:
+#         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
+#         b = st.number_input("Gebe eine feste Breite deiner Stütze in cm ein :")
+#         w = st.number_input("Windlast in kN/m² :")
+#     expander = st.expander("Sieh dir die Eulerfälle und Windzonenkarte an")
+#     expander.write("Abbildung der vier Eulerfälle ")
+#     expander.write(
+#         "Abbildung der Windzonenkarte und zugehöriger Windgeschwindigkeitstabelle"
+#     )
+
+# # prüfen ob der User auch kein Scheiß eingegeben hat .. !
+# if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0:
+#     st.write("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
+#     st.write("---")
+#     sys.exit()
+
+# st.write("---")
+
+
+# def get_value_from_csv(lambda_k, holzprofil):
+#     with open(
+#         "C:\\Users\\lorda\\UNI\\BA\\VSC\\ba_trako\\knickbeiwerte.csv"
+#     ) as csv_datei:
+#         df = pd.read_csv(csv_datei)
+#         row = df[df["lambda"] == lambda_k]
+#         value = row.at[row.index[0], holzprofil]
+#         return value
+
+
+# with st.container():
+#     st.subheader("Konfiguriere deine Stütze :")
+#     spalten = st.columns(2)
+#     with spalten[0]:
+#         material_auswahl = st.selectbox("Wähle das Material :", (["Holz", "Stahl"]))
+#     with spalten[1]:
+#         if material_auswahl == "Holz":
+#             optionen = ["KVH C24", "BSH GL24"]
+#         else:
+#             optionen = ["HEB", "IPE", "Quadratrohr"]
+#         wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
+#     st.write(f"Du hast {wahl_profil} ausgewählt.")
+#     button_gedrueckt = st.button("Stützquerschnitt dimensionieren")
+
+# st.write("---")
+
+
+# # Rechenoperationen
+
+# wert = wert_zu_EF[EF]
+# sk = wert * hoehe
+
+# CM_PER_METER = 100
+
+# h_vor = sk / (0.289 * 100) * CM_PER_METER
+
+
+# def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
+#     cut = math.ceil(h_vor)
+#     return cut if cut % 2 == 0 else cut + 1
+
+
+# # Aufrunden auf nächsthöhere durch zwei teilbare Zahl
+# h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
+
+# # Anzeige der Ergebnisse
+# st.write(f"Ursprüngliche Zahl: {h_vor}")
+# st.write(f"Gerundete Zahl (nächstgrößere durch zwei teilbare Zahl): {h}")
+
+# b = h - 4
+
+
+# def ergebnis_berechnen(b, h):
+#     A = b * h
+#     Wy = (b * (h**2)) / 6
+#     min_i = 0.289 * h
+#     w_fin = (w * 0.8) * stuetzenabstand
+#     M = (w_fin * (hoehe**2)) / 8
+#     Md = M * 1.4
+#     Nd = F * 1.4
+#     lambda_k = sk * 100 / min_i
+#     lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
+#     st.write(lambda_k)
+#     k = get_value_from_csv(lambda_k, wahl_profil)
+#     ergebnis = (Nd / (A * k)) / 1.5 + ((Md * 100) / Wy) / 1.5
+#     return b, h, ergebnis
+
+
+
+# # Funktion zum Überprüfen, ob eine Zahl gerade ist
+# def ist_gerade(zahl):
+#     return zahl % 2 == 0
+
+
+# def finde_optimale_werte(b, h):
+#     aktuelles_b = b
+#     aktuelles_h = h
+#     i = 0
+#     while True:
+#         # Berechne das aktuelle Ergebnis
+#         b_neu, h_neu, erg_neu = ergebnis_berechnen(
+#             aufrunden_auf_naechsthoehe_durch_zwei(aktuelles_b),
+#             aufrunden_auf_naechsthoehe_durch_zwei(aktuelles_h),
+#         )
+#         st.write(b_neu,h_neu, erg_neu)
+
+#         if erg_neu > 1 and i == 0:
+#             aktuelles_b += 2
+#         elif  erg_neu > 1:
+#             aktuelles_b += 2
+#             aktuelles_h += 2
+#         elif erg_neu <= 1:
+#             b_next, h_next, erg_next = ergebnis_berechnen(
+#                 aufrunden_auf_naechsthoehe_durch_zwei(b_neu- 2),
+#                 aufrunden_auf_naechsthoehe_durch_zwei(h_neu - 2),
+#             )
+
+#             if erg_next > 1:
+#                 return b_neu, h_neu, erg_neu
+            
+#             aktuelles_b-=2
+#             aktuelles_h-=2
+        
+
+
+
+
+# # Beispielaufruf
+# start_b = 1
+# start_h = 1
+# optimales_b, optimales_h, bestes_ergebnis = finde_optimale_werte(start_b, start_h)
+
+# st.write(f"Optimales b: {optimales_b}")
+# st.write(f"Optimales h: {optimales_h}")
+# st.write(f"Bestes Ergebnis: {bestes_ergebnis}")
+
+
+# # A = b * h
+# # Wy = (b * (h**2)) / 6
+# # min_i = 0.289 * h
+# # w_fin = (w * 0.8) * stuetzenabstand
+# # M = (w_fin * (hoehe**2)) / 8
+# # Md = M * 1.4
+# # Nd = F * 1.4
+# # lambda_k = sk * 100 / min_i
+# # lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
+# # k = get_value_from_csv(lambda_k, wahl_profil)
+
+# # ergebnis = (Nd / (A * k)) / 1.5 + ((Md * 100) / Wy) / 1.5
+
+# # st.write(sk, min_i)
+# # st.write(lambda_k)
+# # st.write(k)
+# # st.write("---")
+# # st.write(w_fin)
+# # st.write(M)
+# # st.write("---")
+# # st.write(Nd)
+# # st.write(A)
+# # st.write(k)
+# # st.write(Md)
+# # st.write(Wy)
+# # st.write(ergebnis)
+
+
+# #     Ausgabe des Stützenquerschnitts
+
+
+# with st.container():
+#     st.subheader("Querschnitt deiner Stütze :")
+# if button_gedrueckt:
+#     spalten = st.columns(2)
+#     with spalten[1]:
+#         if material_auswahl == "Holz":
+#             st.write(
+#                 "- Die über die Schlankheit vordimensionierte Höhe beträgt "
+#                 + str(h)
+#                 + " cm"
+#             )
+#             st.write(
+#                 "- Deine Stütze aus KVH/BSH hat eine Höhe von ... cm und eine Breite von ..."
+#             )
+#             st.write("- Der Ausnutzungsgrad deiner Stütze beträgt ... % ")
+#         else:
+#             st.write("- Deine Stütze aus Stahl wird ein HEB/IPE/Quadratrohr ... zb 140")
+#             st.write("- Der Ausnutzungsgrad deiner Stütze beträgt ... % ")
+#     with spalten[0]:
+#         st.write(
+#             "Der Querschnitt deiner Stütze sieht so aus: Abbildung des Stützenquerschnittes"
+#         )
+
+# expander = st.expander("zusätliche Informationen zu deiner Stütze:")
+# expander.write("Deine Stütze benötigt ... Kubimeter ... und wiegt somit ... kg")
+# st.write("---")
+
+# expander = st.expander("vorherige Ergebnisse anzeigen")
+# expander.write(
+#     "Abbildung der vorherigen Ergebnisse für die Stützenquerschnitte in den gewählten Materialien und Profilen und den dazugehörigen Werten für b, h und den Ausnutzungsgrad"
+# )
+
+
+# with st.container():
+#     spalten = st.columns(3)
+#     spalten[1].button("Nachweise pdf drucken")
+
+
+# def zeichne_stuetze(EF, normalkraft=0):
+#     # Erstelle eine Linienzeichnung der Stütze
+#     fig, ax = plt.subplots()
+
+#     # Abhängig vom gewählten Eulerfall die Stütze zeichnen
+#     if EF == "Eulerfall 1":
+#         # Eulerfall 1: Obere Stütze ist fest eingespannt
+#         ax.plot([0, 0], [0, 1], "k-", linewidth=2)  # Vertikale Linie
+#         ax.plot(
+#             [-0.05, 0.05], [1, 1], "k-", linewidth=2
+#         )  # Horizontale Linie oben (Festlager)
+#     elif EF == "Eulerfall 2":
+#         # Eulerfall 2: Untere Stütze ist fest eingespannt
+#         ax.plot([0, 0], [0, 1], "k-", linewidth=2)  # Vertikale Linie
+#         ax.plot(
+#             [-0.05, 0.05], [0, 0], "k-", linewidth=2
+#         )  # Horizontale Linie unten (Festlager)
+#     elif EF == "Eulerfall 3":
+#         # Eulerfall 3: Beide Stützen sind gelenkig gelagert
+#         ax.plot([0, 0], [0, 1], "k-", linewidth=2)  # Vertikale Linie
+#         ax.plot(
+#             [-0.05, 0.05], [1, 1], "k--", linewidth=2
+#         )  # Horizontale gestrichelte Linie oben (Loslager)
+#         ax.plot(
+#             [-0.05, 0.05], [0, 0], "k--", linewidth=2
+#         )  # Horizontale gestrichelte Linie unten (Loslager)
+#     elif EF == "Eulerfall 4":
+#         # Eulerfall 4: Obere Stütze ist gelenkig, untere Stütze ist fest eingespannt
+#         ax.plot([0, 0], [0, 1], "k-", linewidth=2)  # Vertikale Linie
+#         ax.plot(
+#             [-0.05, 0.05], [1, 1], "k--", linewidth=2
+#         )  # Horizontale gestrichelte Linie oben (Loslager)
+#         ax.plot(
+#             [-0.05, 0.05], [0, 0], "k-", linewidth=2
+#         )  # Horizontale Linie unten (Festlager)
+
+#     # Anpassung der Achsen und Begrenzungen
+#     ax.axis("equal")
+#     ax.set_xlim([-0.2, 0.2])
+#     ax.set_ylim([-0.2, 1.7])  # Erweitert den Bereich für den Pfeil
+
+#     # Ausblenden der Achsenbeschriftungen
+#     ax.set_xticks([])
+#     ax.set_yticks([])
+
+#     # Zeichne den vergrößerten Pfeil für die Normalkraft
+#     ax.annotate(
+#         f"F: {normalkraft} kN",
+#         xy=(0, 1),
+#         xycoords="data",
+#         xytext=(0, 1.3),
+#         textcoords="data",
+#         arrowprops=dict(
+#             arrowstyle="->", connectionstyle="arc3", linewidth=2, shrinkA=0, shrinkB=10
+#         ),
+#         fontsize=12,
+#         ha="center",
+#         va="center",
+#     )
+
+#     # Rückgabe der Figur, um sie in Streamlit anzuzeigen
+#     return fig
+
+
+# # Streamlit-App
+# st.title("Stützenzeichnung mit Eulerfall")
+
+
+# # Benutzereingabe für die Normalkraft
+# normalkraft = F
+
+# # Zeichne die Stütze mit dem vergrößerten Pfeil und zeige sie in der Streamlit-App an
+# st.pyplot(zeichne_stuetze(EF, normalkraft))
