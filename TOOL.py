@@ -43,13 +43,13 @@ with st.container():
     }
     spalten = st.columns(5)
     with spalten[0]:
-        F = 20 #st.number_input("Normalkraft F in kN :")
+        F = st.number_input("Normalkraft F in kN :")
     with spalten[1]:
-        hoehe = 5 #st.number_input("Stützenhöhe in m :")
+        hoehe = st.number_input("Stützenhöhe in m :")
     with spalten[2]:
-        stuetzenabstand = 2 #st.number_input("Stützenabstand in m :")
+        stuetzenabstand = st.number_input("Stützenabstand in m :")
     with spalten[3]:
-        w = 0.65 #st.number_input("Windlast in kN/m² :")
+        w = st.number_input("Windlast in kN/m² :")
     with spalten[4]:
         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
     
