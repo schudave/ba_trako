@@ -9,6 +9,7 @@ import csv
 import sys
 import os
 
+
 # KONSTANTEN
 FIGURE_WIDTH = 10
 FIGURE_HEIGHT = 10
@@ -42,13 +43,13 @@ with st.container():
     }
     spalten = st.columns(5)
     with spalten[0]:
-        F = st.number_input("Normalkraft F in kN :")
+        F = 20 #st.number_input("Normalkraft F in kN :")
     with spalten[1]:
-        hoehe = st.number_input("Stützenhöhe in m :")
+        hoehe = 5 #st.number_input("Stützenhöhe in m :")
     with spalten[2]:
-        stuetzenabstand = st.number_input("Stützenabstand in m :")
+        stuetzenabstand = 2 #st.number_input("Stützenabstand in m :")
     with spalten[3]:
-        w = st.number_input("Windlast in kN/m² :")
+        w = 0.65 #st.number_input("Windlast in kN/m² :")
     with spalten[4]:
         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
     
@@ -63,7 +64,7 @@ st.write("---")
 
 def get_value_from_csv(lambda_k, holzprofil):
     try:
-        with open("knickbeiwerte.csv") as csv_datei:
+        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\knickbeiwerte.csv") as csv_datei:
             df = pd.read_csv(csv_datei)
             row = df[df["lambda"] == lambda_k]
             value = row.at[row.index[0], holzprofil]
@@ -105,7 +106,7 @@ with spalten[1]:
     value=default_value 
     )
 
-def draw_rectangle(width, height):
+def draw_rectangle(width, height, linewidth = 5.0):
     # Erstelle die Darstellungsoberfläche mit Streamlit
     fig, ax = plt.subplots()
     fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
@@ -115,7 +116,7 @@ def draw_rectangle(width, height):
     def get_center(length):
         return 0.5 - length / 2
 
-    rectangle = Rectangle((1,1), 0, 0, edgecolor='black', facecolor='none',)
+    rectangle = Rectangle((1,1), 0, 0, edgecolor='black', facecolor='none', linewidth = linewidth)
     # Berechne die Position des Rechtecks, um es in der Mitte zu platzieren
     if height <= width:
         width_fix=0.4
@@ -138,22 +139,13 @@ def draw_rectangle(width, height):
     
     ax.set_xticks([])
     ax.set_yticks([])
-    # Zeichne das Rechteck
+    
     ax.add_patch(rectangle)
-    # Zeige die Darstellungsoberfläche in Streamlit an
+    
+    ax.text(0.5, 0.1, f"b = {width} cm", ha='center', va='center', fontsize=20)
+    ax.text(0.15, 0.5, f"h = {height} cm", ha='center', va='center', fontsize=20)
+
     st.pyplot(fig)
-
-
-
-
-# Zeichne das Rechteck mit den angegebenen Höhen- und Breitenwerten
-
-
-
-
-
-
-
 
 
 A = b * h
@@ -187,59 +179,114 @@ with spalten[3]:
 def zeichne_stuetze(EF, normalkraft=0):
     
     fig, ax = plt.subplots()
-    fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT) 
-    
+    fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
+
     if EF == "Eulerfall 1":
-        ax.plot([0, 0], [0, 1], "k-", linewidth=2)  
-        ax.plot(
-            [-0.05, 0.05], [1, 1], "k-", linewidth=2
-        ) 
+        ax.plot([0, 0], [0, 1], "k-", linewidth=4)  
+        ax.plot([-0.1, 0.1], [0, 0], "k-", linewidth=4) 
+        ax.plot([-0.1, -0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([-0.05, 0],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0, 0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.05, 0.1],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.1, 0.15],[0,-0.05], "k-", linewidth=2,)
+
     elif EF == "Eulerfall 2":
-        ax.plot([0, 0], [0, 1], "k-", linewidth=2) 
-        ax.plot(
-            [-0.05, 0.05], [0, 0], "k-", linewidth=2
-        )  # Horizontale Linie unten (Festlager)
+        ax.plot([0, 0], [0, 1], "k-", linewidth=4) 
+        
+        ax.add_patch(plt.Circle((0, 0), 0.015, color='black'))
+        x_triangle = [-0.05, 0, 0.05, -0.05]  
+        y_triangle = [-0.05, 0, -0.05, -0.05]
+        ax.plot(x_triangle, y_triangle, "k-", linewidth=2)
+    
+        ax.add_patch(plt.Circle((0, 1), 0.015, color='black'))
+        x_triangle = [0, 0.05, 0.05, 0]  
+        y_triangle = [1, 1.05, 0.95, 1]
+        ax.plot(x_triangle, y_triangle, "k-", linewidth=2)
+        ax.plot([0.07,0.07],[0.95,1.05],"k-", linewidth=2)
+
+        ax.plot([-0.05,-0.025],[-0.05,-0.075],"k-", linewidth=2)
+        ax.plot([-0.025,0],[-0.05,-0.075],"k-", linewidth=2)
+        ax.plot([0,0.025],[-0.05,-0.075],"k-", linewidth=2)
+        ax.plot([0.025,0.05],[-0.05,-0.075],"k-", linewidth=2)
+        ax.plot([0.05,0.075],[-0.05,-0.075],"k-", linewidth=2)
+
     elif EF == "Eulerfall 3":
-        ax.plot([0, 0], [0, 1], "k-", linewidth=2) 
-        ax.plot(
-            [-0.05, 0.05], [1, 1], "k--", linewidth=2
-        ) 
-        ax.plot(
-            [-0.05, 0.05], [0, 0], "k--", linewidth=2
-        )  
+        ax.plot([0, 0], [0, 1], "k-", linewidth=4) 
+        ax.plot([0.07,0.07],[0.95,1.05],"k-", linewidth=2)
+        ax.plot([-0.1, 0.1], [0, 0], "k-", linewidth=4) 
+        ax.plot([-0.1, -0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([-0.05, 0],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0, 0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.05, 0.1],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.1, 0.15],[0,-0.05], "k-", linewidth=2,)
+        ax.add_patch(plt.Circle((0, 1), 0.015, color='black'))
+        x_triangle = [0, 0.05, 0.05, 0]  
+        y_triangle = [1, 1.05, 0.95, 1]
+        ax.plot(x_triangle, y_triangle, "k-", linewidth=2)
+
     elif EF == "Eulerfall 4":
-        ax.plot([0, 0], [0, 1], "k-", linewidth=2)  
-        ax.plot(
-            [-0.05, 0.05], [1, 1], "k--", linewidth=2
-        )  
-        ax.plot(
-            [-0.05, 0.05], [0, 0], "k-", linewidth=2
-        )  
+        ax.plot([0, 0], [0, 1], "k-", linewidth=4)  
+        ax.plot([-0.1, 0.1], [0, 0], "k-", linewidth=4) 
+        ax.plot([-0.1, -0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([-0.05, 0],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0, 0.05],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.05, 0.1],[0,-0.05], "k-", linewidth=2,)
+        ax.plot([0.1, 0.15],[0,-0.05], "k-", linewidth=2,)
+
+        ax.plot([-0.1, 0.1], [1, 1], "k-", linewidth=4) 
+        ax.plot([-0.1, -0.15],[1,1.05], "k-", linewidth=2,)
+        ax.plot([-0.05, -0.1],[1,1.05], "k-", linewidth=2,)
+        ax.plot([0, -0.05],[1,1.05], "k-", linewidth=2,)
+        ax.plot([0.05, 0],[1,1.05], "k-", linewidth=2,)
+        ax.plot([0.1, 0.05],[1,1.05], "k-", linewidth=2,)
+
+
+
+    for i in np.arange(-0.65, -0.6, 0.0499):
+        ax.plot([i, i], [0, 1], "k-", linewidth=1)
+
+    num_lines = 15
+    for idx, i in enumerate(np.linspace(0, 1, num_lines)):
+        if idx == 0 or idx == num_lines - 1:
+            ax.plot([-0.65, -0.6], [i, i], "k-", linewidth=1)
+        else:
+            ax.arrow(-0.65, i, 0.04, 0, head_width=0.01, head_length=0.01, fc='k', ec='k')
+    ax.text(-0.65, -0.1, f"w: {w_fin} kN/m", ha='center', va='center', fontsize=20)
+   
+    ax.arrow(-0.25, 0, 0, 0.98,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=2)
+    ax.arrow(-0.25, 1, 0, -0.98,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=2)
+    ax.text(-0.4, 0.5, f"l: {hoehe} m", ha='center', va='center', fontsize=20)
 
     ax.axis("equal")
     ax.set_xlim([-0.2, 0.2])
     ax.set_ylim([-0.2, 1.7])  
 
-    # Ausblenden der Achsenbeschriftungen
     ax.set_xticks([])
     ax.set_yticks([])
 
-    # Zeichne den vergrößerten Pfeil für die Normalkraft
     ax.annotate(
         f"F: {normalkraft} kN",
-        xy=(0, 1),
+        xy=(0, 1.1),
         xycoords="data",
-        xytext=(0, 1.3),
+        xytext=(0, 1.5),
         textcoords="data",
         arrowprops=dict(
             arrowstyle="->", connectionstyle="arc3", linewidth=2, shrinkA=0, shrinkB=10
         ),
-        fontsize=12,
+        fontsize=20,
         ha="center",
         va="center",
     )
+    ### PARABEL für Moment max
+    y=np.linspace(0,1,100)
+    x= ((0.5-y)**2) - 0.6
+    plt.plot(-x,y)
+    ax.plot([0.35,0.35],[0,1],"-k",linewidth=2)
+    M_max = (w_fin*(hoehe**2))/8
+    ax.text(0.55, -0.1, f"M max: {M_max} kNm", ha='center', va='center', fontsize=20)
+    ax.arrow(0.35, 0.5, 0.23, 0,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=1)
+    ax.arrow(0.6, 0.5, -0.23, 0,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=1)
 
-    # Rückgabe der Figur, um sie in Streamlit anzuzeigen
     return fig
 
 normalkraft = F
@@ -249,6 +296,11 @@ with spalten[2]:
 
 with spalten[4]:
     st.pyplot(zeichne_stuetze(EF, normalkraft))
+
+st.write("---")
+
+
+
 
 
 
