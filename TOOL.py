@@ -74,7 +74,7 @@ with st.expander("Windlast"):
 if F == 0 or hoehe == 0 or stuetzenabstand == 0 or w == 0:
      st.error("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
      st.write("---")
-     sys.exit()
+     st.stop()
 st.write("---")
 
 def get_value_from_csv(lambda_k, holzprofil):
@@ -178,7 +178,7 @@ lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
 k = get_value_from_csv(lambda_k, wahl_profil)
 if k == -1:
     st.error("FEHLER! Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine EINGABEN!")
-    sys.exit()
+    st.stop()
 if wahl_profil == "KVH C24" :
     sigma_c = 1.3
 else:
