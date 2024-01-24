@@ -147,9 +147,9 @@ with spalten[1]:
         )
     elif material_auswahl == "Stahl St 37":
         if wahl_profil == "IPE":
-            zeichen_profil= int(st.selectbox("IPE", (["80","100","120", "140","160","180","200","220","240","270","300","330","360"])))
+            zeichen_profil= int(st.selectbox("IPE", (["360", "330", "300", "270", "240", "220", "200", "180", "160", "140", "120", "100", "80"])))
         elif wahl_profil == "HEB":
-            zeichen_profil= int(st.selectbox("HEB", (["80","100","120", "140","160","180","200","220","240","300","360"])))
+            zeichen_profil= int(st.selectbox("HEB", (["360", "300", "240", "220", "200", "180", "160", "140", "120", "100", "80"])))
 
 def draw_rectangle(width, height, linewidth = 5.0):
     # Erstelle die Darstellungsoberfläche mit Streamlit
