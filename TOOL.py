@@ -69,7 +69,7 @@ with st.expander("Windlast"):
     with col1:
         st.image(Windzonenkarte, width=400)
     with col2:
-        st.image(Tabelle, width=600)
+        st.image(Tabelle, width=400)
 
 
 # prüfen ob der User auch kein korrekte Werte eingegeben hat
@@ -471,7 +471,7 @@ with st.expander("Knicknachweis anzeigen :"):
 
         with col3:
             st.write("###")
-            equation_latex = r"\frac{\frac{Nd}{{A \cdot k}}}{{\sigma_c}} \;+\; \frac{\frac{Md}{Wy}}{{\sigma_m}} \;\leq\; 1"
+            equation_latex = r"\frac{\frac{Nd}{{A \cdot k}}}{{\sigma_cII}} \;+\; \frac{\frac{Md}{Wy}}{{\sigma_m}} \;\leq\; 1"
             st.latex(equation_latex)
             st.write("###")
             st.write("###")
@@ -505,7 +505,7 @@ with st.expander("Knicknachweis anzeigen :"):
             st.latex(rf"\sigma_d = {sigma_d_rounded} \, kN/cm^2")
             st.write("###")
             st.write("###")
-            st.latex(rf"\sigma_Rd = {sigma_Rd} \, kN/cm²")
+            st.latex(rf"\sigma_{{Rd}} = {sigma_Rd} \, kN/cm²")
 
         with col3:
             st.write("###")
