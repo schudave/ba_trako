@@ -26,9 +26,6 @@ st.set_page_config(
     page_title="Stützen-Stütze",
     layout="wide",
     page_icon=(icon),
-    menu_items={
-        "github repository": "https://github.com/schudave/ba_trako",
-    }
 )
 #header
 spalte_titel, spalte_logo = st.columns([2, 0.5])
