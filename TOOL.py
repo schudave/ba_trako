@@ -17,10 +17,10 @@ FIGURE_WIDTH = 10
 FIGURE_HEIGHT = 10
 CM_PER_METER = 100
 #open images
-icon = Image.open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\page_icon.png")
-logo = Image.open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\LOGO_Stütze.png")
-Windzonenkarte=Image.open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\Windzonenkarte.png")
-Tabelle=Image.open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\Geschwindigkeitsdruck_Tabelle.PNG")
+icon = Image.open("page_icon.png")
+logo = Image.open("LOGO_Stütze.png")
+Windzonenkarte=Image.open("Windzonenkarte.png")
+Tabelle=Image.open("Geschwindigkeitsdruck_Tabelle.PNG")
 #page congiguration
 st.set_page_config(
     page_title="Stützen-Stütze",
@@ -73,7 +73,7 @@ st.write("---")
 #functions the get values from csv files
 def get_k_from_csv(lambda_k, profil):
     try:
-        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\knickbeiwerte.csv") as csv_datei:
+        with open("knickbeiwerte.csv") as csv_datei:
             df = pd.read_csv(csv_datei)
             row = df[df["lambda"] == lambda_k]
             value = row.at[row.index[0], profil]
@@ -82,7 +82,7 @@ def get_k_from_csv(lambda_k, profil):
         return -1
 def get_A_from_csv(zeichen_profil, profil):
     try:
-        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\A_IPE_HEB.csv") as csv_datei:
+        with open("A_IPE_HEB.csv") as csv_datei:
             df = pd.read_csv(csv_datei)
             row = df[df["zeichen_profil"] == zeichen_profil]
             value = row.at[row.index[0], profil]
@@ -91,7 +91,7 @@ def get_A_from_csv(zeichen_profil, profil):
         return -1
 def get_i_from_csv(zeichen_profil, profil):
     try:
-        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\i_IPE_HEB.csv") as csv_datei:
+        with open("i_IPE_HEB.csv") as csv_datei:
             df = pd.read_csv(csv_datei)
             row = df[df["zeichen_profil"] == zeichen_profil]
             value = row.at[row.index[0], profil]
@@ -100,7 +100,7 @@ def get_i_from_csv(zeichen_profil, profil):
         return -1
 def get_W_from_csv(zeichen_profil, profil):
     try:
-        with open("C:\\Users\\lorda\\UNI\\BA\\VSC\\Tool_V2\\W_IPE_HEB.csv") as csv_datei:
+        with open("W_IPE_HEB.csv") as csv_datei:
             df = pd.read_csv(csv_datei)
             row = df[df["zeichen_profil"] == zeichen_profil]
             value = row.at[row.index[0], profil]
