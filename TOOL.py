@@ -28,7 +28,6 @@ st.set_page_config(
     page_icon=(icon),
     menu_items={
         "github repository": "https://github.com/schudave/ba_trako",
-        "About": "#Lieber User, vielen Dank für das Benutzen des Tools Stützen-Stütze!"
     }
 )
 #header
