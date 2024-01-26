@@ -67,7 +67,7 @@ with st.expander("Windlast"):
 if F == 0 or hoehe == 0 or stuetzenabstand == 0:
      st.error("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
      st.write("---")
-     sys.exit()
+     st.stop()
 
 st.write("---")
 #functions the get values from csv files
