@@ -117,6 +117,11 @@ def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
     cut = math.ceil(h_vor)
     return cut if cut % 2 == 0 else cut + 1
 h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
+if 2 < h < 200:
+    st.write("###")
+elif h > 200:
+    st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Rahmenbedingungen!")
+    st.stop()
 #new variable for F
 normalkraft = F
 #defining all the draw_ functions
@@ -426,34 +431,31 @@ with spalten[0]:
             optionen = ["IPE", "HEB"]
     wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
 with spalten[1]:
-    if 2 < h < 200:
-        if material_auswahl == "Holz" and h_vor <= 100:
-            default_value=h
-            h = st.select_slider(
-            'Gib h an :',
-            options=list(range(2, 101, 2)),  
-            value=default_value 
-            )
-            b = st.select_slider(
-            'Gib b an :',
-            options=list(range(2, 101, 2)),  
-            value=default_value 
-            )
-        elif material_auswahl == "Holz" and h_vor > 100:
-            default_value=h
-            h = st.select_slider(
-            'Gib h an :',
-            options=list(range(2, 202, 2)),  
-            value=default_value 
-            )
-            b = st.select_slider(
-            'Gib b an :',
-            options=list(range(2, 202, 2)),  
-            value=default_value 
-            )
-    elif h > 200:
-        st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Rahmenbedingungen!")
-        st.stop()
+    if material_auswahl == "Holz" and h_vor <= 100:
+        default_value=h
+        h = st.select_slider(
+        'Gib h an :',
+        options=list(range(2, 101, 2)),  
+        value=default_value 
+        )
+        b = st.select_slider(
+        'Gib b an :',
+        options=list(range(2, 101, 2)),  
+        value=default_value 
+        )
+    elif material_auswahl == "Holz" and h_vor > 100:
+        default_value=h
+        h = st.select_slider(
+        'Gib h an :',
+        options=list(range(2, 202, 2)),  
+        value=default_value 
+        )
+        b = st.select_slider(
+        'Gib b an :',
+        options=list(range(2, 202, 2)),  
+        value=default_value 
+        )
+    
     elif material_auswahl == "Stahl St 37":
         if wahl_profil == "IPE":
             zeichen_profil= int(st.selectbox("IPE", (["360", "330", "300", "270", "240", "220", "200", "180", "160", "140", "120", "100", "80"])))
