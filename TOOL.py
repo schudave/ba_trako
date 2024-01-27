@@ -16,7 +16,7 @@ from PIL import Image
 FIGURE_WIDTH = 10
 FIGURE_HEIGHT = 10
 CM_PER_METER = 100
-#open images
+#linking pngs which are embedded into the github library with variables to use them further on
 icon = Image.open("page_icon.png")
 logo = Image.open("LOGO_Stütze.png")
 Windzonenkarte=Image.open("Windzonenkarte.png")
@@ -35,10 +35,11 @@ with spalte_titel:
     st.subheader("Das TRAKO Tool zur Vordimensionierung von Stützenquerschnitten")
 with spalte_logo:
     st.image(logo, width=180)
-#Rahmenbedingungen/framework conditions
+#Randbedingungen/boundary conditions as input by the user
 with st.container():
     st.write("---")
     st.subheader("Gib die Randbedingungen deiner Stütze ein :")
+    # adding the corresponding values to EF that influence the lenght of pillar
     wert_zu_EF = {
         "Eulerfall 1": 2,
         "Eulerfall 2": 1,
@@ -56,14 +57,14 @@ with st.container():
         w = st.number_input("Windlast in kN/m² :",min_value=0.00)
     with spalten[4]:
         EF = st.selectbox("Wähle den Eulerfall: ", list(wert_zu_EF.keys()))
-#images of the "Windlast"
+#images of the "Windlast" so the user can input the right value
 with st.expander("Windlast"):
     col1, col2 = st.columns(2)
     with col1:
         st.image(Windzonenkarte, width=400)
     with col2:
         st.image(Tabelle, width=400)
-#checking user input
+#checking if user input is not zero so that the calculations will not divide by zero
 if F == 0 or hoehe == 0 or stuetzenabstand == 0:
      st.error("Bitte trage zuerst die Randbedingungen deiner Stütze ein!")
      st.write("---")
@@ -74,12 +75,18 @@ st.write("---")
 def get_k_from_csv(lambda_k, profil):
     try:
         with open("knickbeiwerte.csv") as csv_datei:
+            #creating a dataframe from the csv data
             df = pd.read_csv(csv_datei)
+            #filtering dataframe to select row with specified lambda value
             row = df[df["lambda"] == lambda_k]
+            #retrieving value from specified profile column in the filtered row
             value = row.at[row.index[0], profil]
+            #returning the retrieved value
             return value
+    # handling exceptions by returning -1
     except:
         return -1
+# this way of using a csv file to retrive data linked to certain inputs and return corresponding values is used in all following get_ functions
 def get_A_from_csv(zeichen_profil, profil):
     try:
         with open("A_IPE_HEB.csv") as csv_datei:
@@ -107,36 +114,36 @@ def get_W_from_csv(zeichen_profil, profil):
             return value
     except:
         return -1
-#getting the values corresponding to the Eulerfall
+#getting the Knicklänge corresponding to the Eulerfall by multiplying the values with pillar height
 wert = wert_zu_EF[EF]
 sk = wert * hoehe
-#Überschlagsrechnung zur Vordimensionierung von h
+#rough calculation for pre-sizing h
 h_vor = sk / (0.289 * 100) * CM_PER_METER
 #rounding h_vor to have a number that is divisible by 2
 def aufrunden_auf_naechsthoehe_durch_zwei(h_vor):
     cut = math.ceil(h_vor)
     return cut if cut % 2 == 0 else cut + 1
 h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
-if 2 < h < 200:
-    st.write("###")
-elif h > 200:
+#capping h in ordner not to run into errors when inputting h into the select sliders (row 444)  
+if h > 200:
     st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Randbedingungen!")
     st.stop()
 #new variable for F
 normalkraft = F
-#defining all the draw_ functions
+#defining all the draw_ funcitons
+#drawing a rectangle thats shows the cross section of the chosen wood columns using the correct aspect ratio
 def draw_rectangle(width, height, linewidth = 5.0):
-    # Erstelle die Darstellungsoberfläche mit Streamlit
+    #creating a display surface
     fig, ax = plt.subplots()
     fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-
+    #function to calculate the center of the rectangle
     def get_center(length):
         return 0.5 - length / 2
-
+    #creating a rectangle object with initial position and properties
     rectangle = Rectangle((1,1), 0, 0, edgecolor='black', facecolor='none', linewidth = linewidth)
-    # Berechne die Position des Rechtecks, um es in der Mitte zu platzieren
+    #adjust rectangle dimensions and position based on aspect ratio
     if height <= width:
         width_fix=0.4
         seitenverhaeltnis= height/width
@@ -155,19 +162,19 @@ def draw_rectangle(width, height, linewidth = 5.0):
         rectangle.set_width(seitenverhaeltnis*height_fix)
         rectangle.set_height(height_fix)
         rectangle.set_xy((x_center,y_center))
-    
+    #removing axis ticks
     ax.set_xticks([])
     ax.set_yticks([])
-    
+    #adding the rectangle to the plot
     ax.add_patch(rectangle)
-    
+    #adding text annotations for width and height
     ax.text(0.5, 0.1, f"b = {width} cm", ha='center', va='center', fontsize=20)
     ax.text(0.15, 0.5, f"h = {height} cm", ha='center', va='center', fontsize=20)
-
+    #displaying the plot
     st.pyplot(fig)
 
 def zeichne_stuetze(EF, normalkraft=0):
-    
+    #drawing the static system of the column based on the chosen Eulerfall
     fig, ax = plt.subplots()
     fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
 
@@ -231,7 +238,7 @@ def zeichne_stuetze(EF, normalkraft=0):
         ax.plot([0.1, 0.05],[1,1.05], "k-", linewidth=2,)
 
 
-
+    #drawing the line load corresponding to the wind load
     for i in np.arange(-0.5, -0.45, 0.0499):
         ax.plot([i, i], [0, 1], "k-", linewidth=1)
 
@@ -242,7 +249,7 @@ def zeichne_stuetze(EF, normalkraft=0):
         else:
             ax.arrow(-0.5, i, 0.04, 0, head_width=0.01, head_length=0.01, fc='k', ec='k')
     ax.text(-0.5, -0.1, f"w: {w_fin} kN/m", ha='center', va='center', fontsize=20)
-   
+    #displaying the height 
     ax.arrow(0.5, 0, 0, 0.98,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=2)
     ax.arrow(0.5, 1, 0, -0.98,  head_width=0.02, head_length=0.02, fc='k', ec='k',linewidth=2)
     ax.text(0.5, -0.1, f"l: {hoehe} m", ha='center', va='center', fontsize=20)
@@ -253,7 +260,7 @@ def zeichne_stuetze(EF, normalkraft=0):
 
     ax.set_xticks([])
     ax.set_yticks([])
-
+    #drawing the Normalkraft using an arrow
     ax.annotate(
         f"F: {normalkraft} kN",
         xy=(0, 1.1),
@@ -268,7 +275,7 @@ def zeichne_stuetze(EF, normalkraft=0):
         va="center",
     )
     return fig
-
+#drawing the cross-sections of IPE and HEB
 def zeichne_HEB(fig):
     fig, ax = plt.subplots()
     fig.set_size_inches(FIGURE_WIDTH,FIGURE_HEIGHT)
@@ -419,10 +426,10 @@ def zeichne_normal(fig):
     ax.set_yticks([])
     return fig
 
-
 #configuring the pillar
 st.subheader("Konfiguriere deine Stütze :")
 spalten = st.columns(5)
+#using select boxes to have user input for chosen materials and profiles
 with spalten[0]:
     material_auswahl = st.selectbox("Wähle das Material :", (["Holz", "Stahl St 37"]))
     if material_auswahl == "Holz":
@@ -430,7 +437,9 @@ with spalten[0]:
     else:
             optionen = ["IPE", "HEB"]
     wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
+#specifying the chosen profile
 with spalten[1]:
+    #two different select sliders so that the user is not put in front of a 2-200 slider when the value for h_vor is smaller than 100, purely asthetical choice
     if material_auswahl == "Holz" and h_vor <= 100:
         default_value=h
         h = st.select_slider(
@@ -468,6 +477,8 @@ if material_auswahl == "Holz":
     Wy = (b * (h**2)) / 6
     min_i = 0.289 * h
     w_fin = round((w * 0.8) * stuetzenabstand ,2)
+    #the round() command is quite important when in comes to displaying the values in the Knicknachweis, it rounds the value to two decimal places 
+    #choosing the correct calculation for M corresponding to the Eulerfall
     if EF == "Eulerfall 1":
         M = (w_fin * (hoehe**2))/2
     elif EF == "Eulerfall 2":
@@ -483,8 +494,12 @@ if material_auswahl == "Holz":
     Nd = F * 1.4
     Nd_round = round(Nd,2)
     lambda_k = sk * 100 / min_i
+    #rounding the calculated lambda to the nearest number divisible by 5 so a value for k can be found in the csv file
     lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
+    #getting the corresponding k value for the calculated lambda
     k = get_k_from_csv(lambda_k, wahl_profil)
+    #if an error occured or no value for k could be found, the function returns a -1
+    #if a -1 is returned the user input has to be adjusted, otherwise a calculation is not possible
     if k == -1:
         st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine EINGABEN!")
         st.stop()
@@ -532,15 +547,10 @@ else:
     sigma_d = Nd/(A_s*k)+(Md/W) 
     sigma_Rd = 21.8
     sigma_d_rounded=round(sigma_d,2)
-
-    # st.write(sigma_d)
-    # st.write(sigma_Rd)
     ausnutzungsgrad_vor_s = (sigma_d/sigma_Rd) * 100
     ausnutzungsgrad_s = round(ausnutzungsgrad_vor_s, 2)
-    # st.write(ausnutzungsgrad_vor_s)
-    # st.write(ausnutzungsgrad_s)
     lambda_print = int(lambda_k)
-
+#this column is used to display the cross-section corresponding to the chosen profile
 with spalten[2]:
     if material_auswahl == "Holz":
          draw_rectangle(b,h)
@@ -586,6 +596,7 @@ with st.expander("Schnittgrößen anzeigen:"):
         st.pyplot(zeichne_normal(fig=0))
 st.write("---")
 with st.expander("Knicknachweis anzeigen :"):
+    #using st.latex to diplay the calculations in scientific writing
     col1, col2, col3, col4 = st.columns([2,2,1,4])
     if material_auswahl == "Holz":
     
