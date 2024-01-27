@@ -442,12 +442,12 @@ with spalten[1]:
         default_value=h
         h = st.select_slider(
         'Gib h an :',
-        options=list(range(2, 202, 4)),  
+        options=list(range(100, 202, 2)),  
         value=default_value 
         )
         b = st.select_slider(
         'Gib b an :',
-        options=list(range(2, 202, 4)),  
+        options=list(range(100, 202, 2)),  
         value=default_value 
         )
 
