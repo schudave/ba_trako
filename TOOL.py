@@ -120,7 +120,7 @@ h = aufrunden_auf_naechsthoehe_durch_zwei(h_vor)
 if 2 < h < 200:
     st.write("###")
 elif h > 200:
-    st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Rahmenbedingungen!")
+    st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Randbedingungen!")
     st.stop()
 #new variable for F
 normalkraft = F
@@ -520,15 +520,12 @@ else:
     A_s = get_A_from_csv(zeichen_profil, wahl_profil )
     lambda_k = (sk*CM_PER_METER)/min_i_s 
     lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
-    if lambda_k > 250 and 80 <= int(zeichen_profil) <= 360:
-        st.error("Für das gewählte Profil existieren keine Knickbeiwerte! Bitte ändere deine Eingaben.")
-        st.stop()
-    elif lambda_k < 20 and 80 <= int(zeichen_profil) <= 360:
-        st.error("Für das gewählte Profil existieren keine Knickbeiwerte! Bitte ändere deine Eingaben.")
+    if lambda_k > 250 or lambda_k < 20:
+        st.error("Für das gewählte Profil existieren keine validen Ergenisse! Bitte ändere die Randbedingungen!")
         st.stop()
     k = get_k_from_csv(lambda_k, wahl_profil)
     if k == -1:
-        st.error("FEHLER! Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine Eingaben!")
+        st.error("Für das gewählte Profil existieren keine validen Ergenisse! Bitte ändere die Randbedingungen!")
         st.stop()
     W = get_W_from_csv(zeichen_profil, wahl_profil)
 
