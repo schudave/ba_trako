@@ -366,8 +366,8 @@ def zeichne_quer(fig):
     fig.set_size_inches(5,5)
     if EF == "Eulerfall 1":
         ax.plot([0.2, 0],[0,0],color = "red")  
-        ax.plot([0.2, 0],[0,1],color = "red")    
-        ax.text(0, -0.1, f"Q(0m): {round({w_fin * hoehe})} kN", ha='center', va='center', fontsize=10)    
+        ax.plot([0.2, 0],[0,1],color = "red")
+        ax.text(0, -0.1, f"Q(0m): {round({w_fin * hoehe}, 2)} kN", ha='center', va='center', fontsize=10)    
     elif EF == "Eulerfall 2":
         ax.plot([0.15, 0],[0,0],color = "red")  
         ax.plot([0.15, 0],[0,0.5],color = "red") 
