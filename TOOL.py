@@ -560,7 +560,7 @@ with spalten[3]:
         st.success(f"{lambda_print}")
     else:
         if sigma_d > sigma_Rd :
-            st.write("Das gewählte Profil erfüllt den Knicknachweis nicht, bitte wähle ein größeres Profil.")
+            st.write("Das gewählte Profil erfüllt den Knicknachweis nicht, bitte wähle ein größeres Profil oder ändere die Randbedingungen.")
         else:
             st.write(f"Der Ausnutzungsgrad ( η ) deiner Stütze beträgt : ")
             st.success(f"{ausnutzungsgrad_s} %")
@@ -635,12 +635,21 @@ with st.expander("Knicknachweis anzeigen :"):
             st.latex(rf"i = {min_i_s} \, cm")
             st.latex(rf"k = {k}")
             st.latex(rf"\text{{bei }} \lambda = {lambda_print}")
+            st.latex(rf"N_d = F \times 1.4 = {Nd_round} \, \text{{kN}}")
             
 
         with col2:
             st.latex(rf"W = {W} \, cm^2")
-            st.latex(rf"N_d = F \times 1.4 = {Nd_round} \, \text{{kN}}")
-            st.latex(rf"M_d = F \times 1.4 = {Md_round} \, \text{{kN}}")
+            st.latex(rf"w = ({w} \,kN/m^2 \times 0.8) \times {stuetzenabstand} \,m = {w_fin} \,kN/m")
+            if EF == "Eulerfall 1":
+                 st.latex(rf"M = ({w_fin} \, kN/m \times {hoehe}^2) / 2 = {M_round} \,kNm")    
+            elif EF == "Eulerfall 2":
+                st.latex(rf"M = ({w_fin} \, kN/m \times {hoehe}^2) / 8 = {M_round} \,kNm")
+            elif EF == "Eulerfall 3":
+                st.latex(rf"M =  9 / 128 \times ({w_fin} \, kN/m \times {hoehe}^2) = {M_round} \,kNm")
+            elif EF == "Eulerfall 4":
+                st.latex(rf"M = ({w_fin} \, kN/m \times {hoehe}^2) / 24 = {M_round} \,kNm")
+            st.latex(rf"M_d = M \times 1.4 = {Md_round} \,kNcm")
             
 
         with col4:
