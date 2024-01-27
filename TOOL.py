@@ -426,31 +426,34 @@ with spalten[0]:
             optionen = ["IPE", "HEB"]
     wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
 with spalten[1]:
-    if material_auswahl == "Holz" and h_vor <= 100:
-        default_value=h
-        h = st.select_slider(
-        'Gib h an :',
-        options=list(range(2, 101, 2)),  
-        value=default_value 
-        )
-        b = st.select_slider(
-        'Gib b an :',
-        options=list(range(2, 101, 2)),  
-        value=default_value 
-        )
-    elif material_auswahl == "Holz" and h_vor > 100:
-        default_value=h
-        h = st.select_slider(
-        'Gib h an :',
-        options=list(range(100, 202, 2)),  
-        value=default_value 
-        )
-        b = st.select_slider(
-        'Gib b an :',
-        options=list(range(100, 202, 2)),  
-        value=default_value 
-        )
-
+    if 2 < h < 200:
+        if material_auswahl == "Holz" and h_vor <= 100:
+            default_value=h
+            h = st.select_slider(
+            'Gib h an :',
+            options=list(range(2, 101, 2)),  
+            value=default_value 
+            )
+            b = st.select_slider(
+            'Gib b an :',
+            options=list(range(2, 101, 2)),  
+            value=default_value 
+            )
+        elif material_auswahl == "Holz" and h_vor > 100:
+            default_value=h
+            h = st.select_slider(
+            'Gib h an :',
+            options=list(range(2, 202, 2)),  
+            value=default_value 
+            )
+            b = st.select_slider(
+            'Gib b an :',
+            options=list(range(2, 202, 2)),  
+            value=default_value 
+            )
+    elif h > 200:
+        st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte ändere die Rahmenbedingungen!")
+        st.stop()
     elif material_auswahl == "Stahl St 37":
         if wahl_profil == "IPE":
             zeichen_profil= int(st.selectbox("IPE", (["360", "330", "300", "270", "240", "220", "200", "180", "160", "140", "120", "100", "80"])))
@@ -481,7 +484,7 @@ if material_auswahl == "Holz":
     lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
     k = get_k_from_csv(lambda_k, wahl_profil)
     if k == -1:
-        st.error("FEHLER! Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine EINGABEN!")
+        st.error("Für deine Stütze existieren keine validen Ergebnisse, bitte überprüfe deine EINGABEN!")
         st.stop()
     if wahl_profil == "KVH C24" :
         sigma_c = 1.3
