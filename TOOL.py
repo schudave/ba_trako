@@ -425,7 +425,7 @@ with spalten[0]:
             optionen = ["IPE", "HEB"]
     wahl_profil = st.selectbox("Wähle ein Profil :", optionen)
 with spalten[1]:
-    if material_auswahl == "Holz":
+    if material_auswahl == "Holz" and h_vor <= 100:
         default_value=h
         h = st.select_slider(
         'Gib h an :',
@@ -437,6 +437,19 @@ with spalten[1]:
         options=list(range(2, 101, 2)),  
         value=default_value 
         )
+    elif material_auswahl == "Holz" and h_vor > 100:
+        default_value=h
+        h = st.select_slider(
+        'Gib h an :',
+        options=list(range(2, 201, 4)),  
+        value=default_value 
+        )
+        b = st.select_slider(
+        'Gib b an :',
+        options=list(range(2, 201, 4)),  
+        value=default_value 
+        )
+
     elif material_auswahl == "Stahl St 37":
         if wahl_profil == "IPE":
             zeichen_profil= int(st.selectbox("IPE", (["360", "330", "300", "270", "240", "220", "200", "180", "160", "140", "120", "100", "80"])))
