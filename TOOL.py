@@ -367,14 +367,14 @@ def zeichne_quer(fig):
     if EF == "Eulerfall 1":
         ax.plot([0.2, 0],[0,0],color = "red")  
         ax.plot([0.2, 0],[0,1],color = "red")    
-        ax.text(0, -0.1, f"Q(0m): {w_fin * hoehe} kN", ha='center', va='center', fontsize=10)    
+        ax.text(0, -0.1, f"Q(0m): {round({w_fin * hoehe})} kN", ha='center', va='center', fontsize=10)    
     elif EF == "Eulerfall 2":
         ax.plot([0.15, 0],[0,0],color = "red")  
         ax.plot([0.15, 0],[0,0.5],color = "red") 
         ax.plot([-0.15, 0],[1,1],color = "blue")  
         ax.plot([-0.15, 0],[1,0.5],color = "blue") 
         ax.text(0, -0.1, f"Q(0m): {round((w_fin * hoehe)/2,2)} kN", ha='center', va='center', fontsize=10)
-        ax.text(0, 1.1, f"Q({hoehe}m): -{round((w_fin * hoehe)/2,2)} kN", ha='center', va='center', fontsize=10)
+        ax.text(0, 1.1, f"Q({hoehe}m): -{round((w_fin * hoehe)/2, 2)} kN", ha='center', va='center', fontsize=10)
     elif EF == "Eulerfall 3":
         ax.plot([0.3125, 0],[0,0],color = "red")  
         ax.plot([0.3125, 0],[0,0.625],color = "red") 
