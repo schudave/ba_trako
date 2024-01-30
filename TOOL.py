@@ -535,12 +535,9 @@ else:
     A_s = get_A_from_csv(zeichen_profil, wahl_profil )
     lambda_k = (sk*CM_PER_METER)/min_i_s 
     lambda_k = lambda_k if lambda_k % 5 == 0 else lambda_k + (5 - lambda_k % 5)
-    if lambda_k > 250 or lambda_k < 20:
-        st.error("Für das gewählte Profil existieren keine validen Ergenisse! Bitte ändere die Randbedingungen!")
-        st.stop()
     k = get_k_from_csv(lambda_k, wahl_profil)
     if k == -1:
-        st.error("Für das gewählte Profil existieren keine validen Ergenisse! Bitte ändere die Randbedingungen!")
+        st.error("Für das gewählte Profil existieren keine validen Ergenisse! Bitte ändere die Eingaben!")
         st.stop()
     W = get_W_from_csv(zeichen_profil, wahl_profil)
 
@@ -571,6 +568,9 @@ with spalten[3]:
     else:
         if sigma_d > sigma_Rd :
             st.write("Das gewählte Profil erfüllt den Knicknachweis nicht, bitte wähle ein größeres Profil oder ändere die Randbedingungen.")
+        elif lambda_k > 250 or lambda_k < 20:
+            st.error("Für das gewählte Profil existieren keine Knickbeiwerte! Bitte wähle ein anderes Profil oder ändere die Randbedingungen!")
+            st.stop()    
         else:
             st.write(f"Der Ausnutzungsgrad ( η ) deiner Stütze beträgt : ")
             st.success(f"{ausnutzungsgrad_s} %")
@@ -661,8 +661,6 @@ with st.expander("Knicknachweis anzeigen :"):
             elif EF == "Eulerfall 4":
                 st.latex(rf"M = ({w_fin} \, kN/m \times {hoehe}^2) / 24 = {M_round} \,kNm")
             st.latex(rf"M_d = M \times 1.4 = {Md_round} \,kNcm")
-            
-
         with col4:
             st.latex(rf"\sigma_{{Rd}} = {sigma_Rd} \, kN/cm²")
             st.write("###")
@@ -677,6 +675,3 @@ with st.expander("Knicknachweis anzeigen :"):
             st.error("Die Stütze erfüllt den Knicknachweis nicht!")
         elif sigma_d < sigma_Rd:
             st.success("Die Stütze erfüllt den Knicknachweis!")
-
-
-
